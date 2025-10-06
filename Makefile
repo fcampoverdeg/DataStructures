@@ -1,51 +1,54 @@
+# =====================================================
+#  Makefile — compile & run any .cpp file with:
+#      make filename.cpp
+# =====================================================
+
+# Disable built-in implicit rules so Make doesn’t get confused
+.SUFFIXES:
+
 # Compiler and flags
 CXX := g++
 CXXFLAGS := -std=c++17 -Wall -Wextra -O2
 
 # Directories
-SRC_DIR := .
 BIN_DIR := bin
 
-# Default target (if you just type "make")
+# Default goal
 .DEFAULT_GOAL := help
 
-# Create bin directory if not exists
+# Always-run sentinel
+.PHONY: FORCE help clean_all
+FORCE:
+
+# Ensure bin directory exists
 $(BIN_DIR):
 	mkdir -p $(BIN_DIR)
 
+# Main rule: allows "make file.cpp"
+%.cpp: FORCE | $(BIN_DIR)
+	@src="$@"; \
+	name=$${src%.cpp}; \
+	echo " 🔧 Compiling $$src..."; \
+	$(CXX) $(CXXFLAGS) $$src -o $(BIN_DIR)/$$name; \
+	echo "✅ Build complete. Running program..."; \
+	echo "---------------------------------------"; \
+	./$(BIN_DIR)/$$name; \
+	echo "---------------------------------------"; \
+	echo "🏁 Program finished."; \
+	echo ""
 
-# Pattern rule: build any .cpp file into an executable of the same name
-%: %.cpp | $(BIN_DIR)
-	@echo " 🔧 Compiling $<..."
-	@$(CXX) $(CXXFLAGS) $< -o $(BIN_DIR)/$@
-	@echo "✅ Build complete. Running program..."
-	@echo "---------------------------------------"
-	@./$(BIN_DIR)/$@
-	@echo "---------------------------------------"
-	@echo "🏁 Program finished."
-	@echo " "
-
-# Clean a specific target: make clean stack
-clean:
-ifeq ($(filter clean,$(MAKECMDGOALS)),clean)
-	@echo "Usage:"
-	@echo "  make clean target   -> removes a specific executable"
-	@echo "  make clean all      -> removes all executables"
-endif
-
-# Clean a specific program
+# Clean commands
 clean_%:
 	@echo "Removing executable $*..."
-	rm -f $ $*
+	rm -f $(BIN_DIR)/$*
 
-# Clean all executables in the directory
 clean_all:
 	@echo "Removing all executables..."
-	rm -f $(basename $(wildcard *.cpp))
+	rm -f $(BIN_DIR)/*
 
-# Helpful output
-help: 
+# Help text
+help:
 	@echo "Usage:"
-	@echo "  make <name>		  -> compile <name>.cpp to <name>"
-	@echo "  make clean_<name>.   -> remove <name> executable"
-	@echo " make clean_all		  -> remove all executables"
+	@echo "  make <file>.cpp     -> compile & run <file>.cpp (always rebuilds)"
+	@echo "  make clean_<file>   -> remove bin/<file>"
+	@echo "  make clean_all      -> remove all bin/*"

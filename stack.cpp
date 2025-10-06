@@ -4,6 +4,8 @@
 
 using namespace std;
 
+// *************************************************************************************
+
 /*  STACK
  * Stack is a LIFO data strucure, imagine like stacking book on top of each other.
  * To access the very first data we need to remove all the previous ones
@@ -18,8 +20,9 @@ using namespace std;
  * 
  * NOTE: All main stack operations work on the top element, so they take constant time.
  * 
- * 
  */
+
+// *************************************************************************************
 
 int main() {
     stack<string> programmingLanguages; // Creates "Stack" structure
